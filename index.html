@@ -82,9 +82,27 @@
 </div>
 
 <script>
-function generate() {
+async function generate() {
   let w = document.getElementById("weight").value;
   let g = document.getElementById("goal").value;
+
+  document.getElementById("output").innerText = "Thinking...";
+
+  let res = await fetch("http://localhost:11434/api/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "gemma:2b",
+      prompt: `Create a gym and diet plan for ${w}kg person with goal ${g}. Indian budget friendly.`
+    })
+  });
+
+  let data = await res.json();
+  document.getElementById("output").innerText = data.response;
+}
+</script>
 
   document.getElementById("output").innerText =
   `🔥 AI PLAN FOR ${w}kg (${g})
