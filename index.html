@@ -1,86 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>AI Gym Coach 💪</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
-      color: white;
-      text-align: center;
-    }
-
-    .container {
-      max-width: 500px;
-      margin: 80px auto;
-      padding: 30px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,255,150,0.2);
-    }
-
-    h1 {
-      color: #00ff88;
-      margin-bottom: 10px;
-    }
-
-    input {
-      width: 80%;
-      padding: 12px;
-      margin: 10px;
-      border: none;
-      border-radius: 10px;
-    }
-
-    button {
-      padding: 12px 25px;
-      background: #00ff88;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    button:hover {
-      background: #00cc6a;
-    }
-
-    pre {
-      text-align: left;
-      background: #111;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 20px;
-      white-space: pre-wrap;
-    }
-
-    .tag {
-      font-size: 12px;
-      color: #aaa;
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="container">
-
-  <h1>💪 AI Gym Coach</h1>
-  <div class="tag">Build your body smarter, not harder</div>
-
-  <input id="weight" placeholder="Enter weight (kg)" />
-  <input id="goal" placeholder="Goal (bulk/cut)" />
-
-  <br>
-
-  <button onclick="generate()">Generate Plan ⚡</button>
-
-  <pre id="output">Your AI plan will appear here...</pre>
-
-</div>
-
 <script>
 async function generate() {
   let w = document.getElementById("weight").value;
@@ -88,47 +5,23 @@ async function generate() {
 
   document.getElementById("output").innerText = "Thinking...";
 
-  let res = await fetch("http://localhost:11434/api/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "gemma:2b",
-      prompt: `Create a gym and diet plan for ${w}kg person with goal ${g}. Indian budget friendly.`
-    })
-  });
+  try {
+    const res = await fetch("http://127.0.0.1:11434/api/generate", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "gemma:2b",
+        prompt: `Create a gym and diet plan for ${w}kg person with goal ${g}. Indian budget friendly.`,
+        stream: false
+      })
+    });
 
-  let text = await res.text();
-let lines = text.split("\n");
-let final = "";
+    const data = await res.json();
+    document.getElementById("output").innerText = data.response;
 
-for (let line of lines) {
-  if (line.trim() !== "") {
-    let json = JSON.parse(line);
-    final += json.response || "";
+  } catch (e) {
+    document.getElementById("output").innerText = "Error connecting to AI";
+    console.error(e);
   }
 }
-
-document.getElementById("output").innerText = final;
-}
 </script>
-
-  document.getElementById("output").innerText =
-  `🔥 AI PLAN FOR ${w}kg (${g})
-
-🥗 Diet:
-- High protein food
-- Balanced carbs
-- Water 3-4L daily
-
-🏋️ Workout:
-- Compound exercises
-- Progressive overload
-
-⚡ Stay consistent for 30 days`;
-}
-</script>
-
-</body>
-</html>
